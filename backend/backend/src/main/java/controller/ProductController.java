@@ -9,19 +9,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Yeh line CORS error ko turant hata degi!
 public class ProductController {
 
     @Autowired
     private ProductRepository productRepository;
 
-    // 1. Saare products ko dekhne ke liye API (GET Request)
     @GetMapping
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    // 2. Naya product add karne ke liye API (POST Request)
     @PostMapping
     public Product createProduct(@RequestBody Product product) {
         return productRepository.save(product);

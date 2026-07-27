@@ -1,34 +1,49 @@
-const productContainer = document.getElementById("product-container");
-let cartCount = 0;
+document.addEventListener("DOMContentLoaded", () => {
+    fetchProducts();
+});
 
-// Backend Spring Boot API se real products fetch karna
 function fetchProducts() {
-    fetch("http://localhost:8080/api/products")
-        .then(response => response.json())
+    // Agar aapka backend port 8082 par chal raha hai toh 8082 likhein
+    fetch("http://localhost:8082/api/products")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
         .then(products => {
+            const productContainer = document.getElementById("product-container");
             productContainer.innerHTML = "";
+
+            if (products.length === 0) {
+                productContainer.innerHTML = "<p>No products found in database.</p>";
+                return;
+            }
+
             products.forEach(product => {
                 const productCard = document.createElement("div");
                 productCard.classList.add("product-card");
                 
-                // Yahan product.imageUrl, product.name, etc. bilkul sahi match kar rahe hain!
                 productCard.innerHTML = `
-                    <img src="${product.imageUrl}" alt="${product.name}">
+                    <img src="${product.imageUrl}" alt="${product.name}" style="width:100px; height:100px; object-fit:cover;">
                     <h3>${product.name}</h3>
                     <p>${product.description}</p>
                     <span>₹${product.price}</span>
+                    <br>
                     <button onclick="addToCart()">Add to Cart</button>
                 `;
                 productContainer.appendChild(productCard);
             });
         })
-        .catch(error => console.error("Error fetching products:", error));
+        .catch(error => {
+            console.error("Error fetching products:", error);
+            const productContainer = document.getElementById("product-container");
+            productContainer.innerHTML = "<p style='color:red;'>Failed to load products from backend server.</p>";
+        });
 }
 
 function addToCart() {
-    cartCount++;
-    document.getElementById("cart-count").innerText = cartCount;
+    let cartCount = document.getElementById("cart-count");
+    let currentCount = parseInt(cartCount.innerText);
+    cartCount.innerText = currentCount + 1;
 }
-
-// Page load hone par API call karna
-fetchProducts();
